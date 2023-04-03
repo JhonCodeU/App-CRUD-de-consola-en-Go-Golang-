@@ -1,10 +1,13 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"io"
 	"os"
+	"strconv"
+	"strings"
 
 	task "github.com/JhonCodeU/go-cli-crud/tasks"
 )
@@ -49,6 +52,54 @@ func main() {
 	switch os.Args[1] {
 	case "list":
 		task.ListTask(tasks)
+	case "add":
+		reader := bufio.NewReader(os.Stdin)
+		fmt.Print("what is the task name? ")
+		name, _ := reader.ReadString('\n')
+		strings.TrimSpace(name)
+
+		fmt.Println("What is the task description? ")
+		description, _ := reader.ReadString('\n')
+		strings.TrimSpace(description)
+
+		tasks = task.AddTask(tasks, name, description)
+		task.SaveTask(file, tasks)
+		fmt.Println("Task added successfully")
+
+	case "delete":
+		if len(os.Args) < 3 {
+			fmt.Println("Please provide the task ID")
+			return
+		}
+
+		id, err := strconv.Atoi(os.Args[2])
+
+		if err != nil {
+			fmt.Println("Please provide a valid number")
+			return
+		}
+
+		tasks = task.DeleteTask(tasks, id)
+		task.SaveTask(file, tasks)
+
+	case "complete":
+		if len(os.Args) < 3 {
+			fmt.Println("Please provide the task ID")
+			return
+		}
+
+		id, err := strconv.Atoi(os.Args[2])
+
+		if err != nil {
+			fmt.Println("Please provide a valid number")
+			return
+		}
+
+		tasks = task.CompleteTask(tasks, id)
+		task.SaveTask(file, tasks)
+
+	default:
+		printUsage()
 	}
 }
 
